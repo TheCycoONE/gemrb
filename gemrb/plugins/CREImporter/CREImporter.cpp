@@ -35,7 +35,7 @@
 
 using namespace GemRB;
 
-static unsigned int RandColor = 1;
+static TableMgr::index_t RandColor = 1;
 std::map<ieDword, std::vector<unsigned char>> randcolors;
 
 //one column, these don't have a level
@@ -789,7 +789,7 @@ void CREImporter::SetupColor(ieDword &stat) const
 {
 	if (RandColor == 0) return;
 
-	ieDword RandRows = 0;
+	TableMgr::index_t RandRows = 0;
 	if (randcolors.empty()) {
 		AutoTable rndcol = gamedata->LoadTable("randcolr", true);
 		if (rndcol) {
@@ -818,7 +818,7 @@ void CREImporter::SetupColor(ieDword &stat) const
 	if (colors == randcolors.end()) {
 		Log(ERROR, "CREImporter", "Missing random color index in randcolr.2da: {}", stat);
 		// fall back to browns
-		stat = randcolors.begin()->second[RAND<ieDword>(ieDword(0), RandRows - 1)];
+		stat = randcolors.begin()->second[RAND<TableMgr::index_t>(0, RandRows - 1)];
 		return;
 	}
 
