@@ -2957,7 +2957,7 @@ void GameScript::JoinParty(Scriptable* Sender, Action* parameters)
 		const char* scriptname = act->GetScriptName();
 		ResRef resRef;
 		//set dialog only if we got a row
-		if (pdtable->GetRowIndex( scriptname ) != -1) {
+		if (pdtable->GetRowIndex( scriptname ) != TableMgr::npos) {
 			if (game->Expansion == GAME_TOB) {
 				resRef = ResRef::MakeLowerCase(pdtable->QueryField(scriptname, "25JOIN_DIALOG_FILE"));
 			} else {
@@ -3491,7 +3491,7 @@ void GameScript::SetLeavePartyDialogFile(Scriptable* Sender, Action* /*parameter
 	if (!pdtable) return;
 
 	const char* scriptname = act->GetScriptName();
-	if (pdtable->GetRowIndex( scriptname ) != -1) {
+	if (pdtable->GetRowIndex( scriptname ) != TableMgr::npos) {
 		ResRef resRef;
 
 		if (core->GetGame()->Expansion == GAME_TOB) {
@@ -4543,8 +4543,8 @@ void GameScript::TakeItemList(Scriptable * Sender, Action* parameters)
 		return;
 	}
 
-	int rows = tab->GetRowCount();
-	for (int i=0;i<rows;i++) {
+	TableMgr::index_t rows = tab->GetRowCount();
+	for (TableMgr::index_t i = 0; i < rows; ++i) {
 		MoveItemCore(tar, Sender, tab->QueryField(i,0), 0, IE_INV_ITEM_UNSTEALABLE);
 	}
 }
@@ -4556,8 +4556,8 @@ void GameScript::TakeItemListParty(Scriptable * Sender, Action* parameters)
 		return;
 	}
 	const Game *game = core->GetGame();
-	int rows = tab->GetRowCount();
-	for (int i=0;i<rows;i++) {
+	TableMgr::index_t rows = tab->GetRowCount();
+	for (TableMgr::index_t i = 0; i < rows; ++i) {
 		int j = game->GetPartySize(false);
 		while (j--) {
 			Actor *tar = game->GetPC(j, false);
@@ -4573,9 +4573,9 @@ void GameScript::TakeItemListPartyNum(Scriptable * Sender, Action* parameters)
 		return;
 	}
 	const Game *game = core->GetGame();
-	int rows = tab->GetRowCount();
+	TableMgr::index_t rows = tab->GetRowCount();
 	int count = parameters->int0Parameter;
-	for (int i=0;i<rows;i++) {
+	for (TableMgr::index_t i = 0; i < rows; ++i) {
 		int j = game->GetPartySize(false);
 		while (j--) {
 			Actor *tar = game->GetPC(j, false);
@@ -7213,8 +7213,8 @@ void GameScript::SetToken2DA(Scriptable* /*Sender*/, Action* parameters)
 		return;
 	}
 
-	int count = tm->GetRowCount();
-	for (int i = 0; i < count; i++) {
+	TableMgr::index_t count = tm->GetRowCount();
+	for (TableMgr::index_t i = 0; i < count; i++) {
 		//roll a random number between 0 and column #
 		int j = core->Roll(1, tm->GetColumnCount(i), -1);
 		ieVariable tokenname = ieVariable::MakeUpperCase(tm->GetRowName(i));
