@@ -821,7 +821,7 @@ static PyObject* GemRB_Table_GetRowName(PyObject* self, PyObject* args)
 	AutoTable tm = CObject<TableMgr, std::shared_ptr>(self);
 	ABORT_IF_NULL(tm);
 
-	const char* str = tm->GetRowName( row );
+	const char* str = tm->GetRowName( row ).c_str();
 	ABORT_IF_NULL(str);
 
 	return PyString_FromString( str );
@@ -884,7 +884,7 @@ static PyObject* GemRB_Table_GetColumnName(PyObject* self, PyObject* args)
 	AutoTable tm = CObject<TableMgr, std::shared_ptr>(self);
 	ABORT_IF_NULL(tm);
 
-	const char* str = tm->GetColumnName( col );
+	const char* str = tm->GetColumnName( col ).c_str();
 	ABORT_IF_NULL(str);
 
 	return PyString_FromString( str );
@@ -7834,7 +7834,7 @@ static void ReadUsedItems()
 		TableMgr::index_t UsedItemsCount = table->GetRowCount();
 		UsedItems.resize(UsedItemsCount);
 		for (TableMgr::index_t i = 0; i < UsedItemsCount; i++) {
-			UsedItems[i].itemname = table->GetRowName(i);
+			UsedItems[i].itemname = table->GetRowName(i).c_str();
 			UsedItems[i].username = ieVariable::MakeLowerCase(table->QueryField(i, 0).c_str());
 			if (UsedItems[i].username[0] == '*') {
 				UsedItems[i].username.Reset();
@@ -7858,7 +7858,7 @@ static void ReadSpecialItems()
 		TableMgr::index_t SpecialItemsCount = tab->GetRowCount();
 		SpecialItems.resize(SpecialItemsCount);
 		for (TableMgr::index_t i = 0; i < SpecialItemsCount; i++) {
-			SpecialItems[i].resref = tab->GetRowName(i);
+			SpecialItems[i].resref = tab->GetRowName(i).c_str();
 			//if there are more flags, compose this value into a bitfield
 			SpecialItems[i].value = tab->QueryFieldAsStrRef(i, 0);
 		}
@@ -7873,7 +7873,7 @@ static ieStrRef GetSpellDesc(const ResRef& CureResRef)
 			TableMgr::index_t StoreSpellsCount = tab->GetRowCount();
 			StoreSpells.resize(StoreSpellsCount);
 			for (TableMgr::index_t i = 0; i < StoreSpellsCount; i++) {
-				StoreSpells[i].resref = tab->GetRowName(i);
+				StoreSpells[i].resref = tab->GetRowName(i).c_str();
 				StoreSpells[i].value = tab->QueryFieldAsStrRef(i, 0);
 			}
 		}
@@ -10507,7 +10507,7 @@ static void ReadActionButtons()
 		GUIAction[i] = row.data;
 		GUITooltip[i] = tab->QueryFieldAsStrRef(i,4);
 		GUIResRef[i] = tab->QueryField(i, 5).c_str();
-		strncpy(GUIEvent[i], tab->GetRowName(i), 16);
+		strncpy(GUIEvent[i], tab->GetRowName(i).c_str(), 16);
 	}
 }
 
