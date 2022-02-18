@@ -2959,9 +2959,9 @@ void GameScript::JoinParty(Scriptable* Sender, Action* parameters)
 		//set dialog only if we got a row
 		if (pdtable->GetRowIndex( scriptname ) != TableMgr::npos) {
 			if (game->Expansion == GAME_TOB) {
-				resRef = ResRef::MakeLowerCase(pdtable->QueryField(scriptname, "25JOIN_DIALOG_FILE"));
+				resRef = pdtable->QueryField(scriptname, "25JOIN_DIALOG_FILE").c_str();
 			} else {
-				resRef = ResRef::MakeLowerCase(pdtable->QueryField(scriptname, "JOIN_DIALOG_FILE"));
+				resRef = pdtable->QueryField(scriptname, "JOIN_DIALOG_FILE").c_str();
 			}
 			act->SetDialog(resRef);
 		}
@@ -3495,9 +3495,9 @@ void GameScript::SetLeavePartyDialogFile(Scriptable* Sender, Action* /*parameter
 		ResRef resRef;
 
 		if (core->GetGame()->Expansion == GAME_TOB) {
-			resRef = ResRef::MakeLowerCase(pdtable->QueryField(scriptname, "25POST_DIALOG_FILE"));
+			resRef = pdtable->QueryField(scriptname, "25POST_DIALOG_FILE").c_str();
 		} else {
-			resRef = ResRef::MakeLowerCase(pdtable->QueryField(scriptname, "POST_DIALOG_FILE"));
+			resRef = pdtable->QueryField(scriptname, "POST_DIALOG_FILE").c_str();
 		}
 		act->SetDialog(resRef);
 	}
@@ -4545,7 +4545,7 @@ void GameScript::TakeItemList(Scriptable * Sender, Action* parameters)
 
 	TableMgr::index_t rows = tab->GetRowCount();
 	for (TableMgr::index_t i = 0; i < rows; ++i) {
-		MoveItemCore(tar, Sender, tab->QueryField(i,0), 0, IE_INV_ITEM_UNSTEALABLE);
+		MoveItemCore(tar, Sender, tab->QueryField(i,0).c_str(), 0, IE_INV_ITEM_UNSTEALABLE);
 	}
 }
 
@@ -4561,7 +4561,7 @@ void GameScript::TakeItemListParty(Scriptable * Sender, Action* parameters)
 		int j = game->GetPartySize(false);
 		while (j--) {
 			Actor *tar = game->GetPC(j, false);
-			MoveItemCore(tar, Sender, tab->QueryField(i,0), 0, IE_INV_ITEM_UNSTEALABLE);
+			MoveItemCore(tar, Sender, tab->QueryField(i,0).c_str(), 0, IE_INV_ITEM_UNSTEALABLE);
 		}
 	}
 }
@@ -4579,7 +4579,7 @@ void GameScript::TakeItemListPartyNum(Scriptable * Sender, Action* parameters)
 		int j = game->GetPartySize(false);
 		while (j--) {
 			Actor *tar = game->GetPC(j, false);
-			int res=MoveItemCore(tar, Sender, tab->QueryField(i,0), 0, IE_INV_ITEM_UNSTEALABLE);
+			int res=MoveItemCore(tar, Sender, tab->QueryField(i,0).c_str(), 0, IE_INV_ITEM_UNSTEALABLE);
 			if (res==MIC_GOTITEM) {
 				j++;
 				count--;
@@ -7218,7 +7218,7 @@ void GameScript::SetToken2DA(Scriptable* /*Sender*/, Action* parameters)
 		//roll a random number between 0 and column #
 		TableMgr::index_t j = RAND<TableMgr::index_t>(0, tm->GetColumnCount(i) - 1);
 		ieVariable tokenname = ieVariable::MakeUpperCase(tm->GetRowName(i));
-		core->GetTokenDictionary()->SetAtCopy( tokenname, tm->QueryField(i, j) );
+		core->GetTokenDictionary()->SetAtCopy(tokenname, tm->QueryField(i, j).c_str());
 	}
 }
 
