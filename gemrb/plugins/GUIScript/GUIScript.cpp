@@ -179,7 +179,8 @@ static const ScriptingRefBase* GetScriptingRef(PyObject* obj) {
 		RuntimeError("Invalid Scripting reference, must have SCRIPT_GROUP attribute.");
 		return NULL;
 	}
-	ScriptingGroup_t group = static_cast<const char*>(PyString_AsString(attr));
+	const char* cstr = static_cast<const char*>(PyString_AsString(attr));
+	ScriptingGroup_t group = ScriptingGroup_t(cstr);
 	Py_DecRef(attr);
 
 	return gs->GetScripingRef(group, id);
@@ -574,7 +575,7 @@ static PyObject* GemRB_LoadWindow(PyObject * /*self*/, PyObject* args)
 	char* ref = NULL;
 	PARSE_ARGS(args, "i|si", &WindowID, &ref, &pos);
 
-	Window* win = core->LoadWindow( WindowID, ref, pos );
+	Window* win = core->LoadWindow(WindowID, ScriptingGroup_t(ref), pos);
 	ABORT_IF_NULL(win);
 	win->SetFlags(Window::AlphaChannel, BitOp::OR);
 	PyObject* pyWin = ConstructObjectForScriptableView( win->GetScriptingRef() );
@@ -1165,13 +1166,14 @@ overwriteing an existing entry.\n\
 
 static PyObject* GemRB_View_AddAlias(PyObject* self, PyObject* args)
 {
-	char* group = NULL;
+	char* cstr = NULL;
 	// default to the lowest valid value (since its optional and we often only want 1 control per alias)
 	// the exception being for creating groups such as the GAMEGUI windows for quickly hiding/showing the entire group
 	ScriptingId controlId = 0;
 	int overwrite = false;
-	PARSE_ARGS( args, "Os|li", &self, &group, &controlId, &overwrite );
+	PARSE_ARGS( args, "Os|li", &self, &cstr, &controlId, &overwrite );
 
+	const ScriptingGroup_t group = ScriptingGroup_t(cstr);
 	View* view = GetView<View>(self);
 	ABORT_IF_NULL(view);
 	if (overwrite) {
@@ -1215,7 +1217,7 @@ static PyObject* GemRB_GetView(PyObject* /*self*/, PyObject* args)
 
 	const ScriptingRefBase* ref = NULL;
 	if (PyUnicode_Check(lookup)) {
-		const char* group = PyString_AsString(lookup);
+		const ScriptingGroup_t group = ScriptingGroup_t(static_cast<const char*>(PyString_AsString(lookup)));
 		ref = ScriptEngine::GetScripingRef(group, id);
 	} else {
 		const Window* win = GetView<Window>(lookup);
@@ -1989,7 +1991,9 @@ static PyObject* GemRB_Control_SetVarAssoc(PyObject* self, PyObject* args)
 	{
 		val = static_cast<Control::value_t>(PyLong_AsUnsignedLongMask(Value));
 	}
-	ctrl->BindDictVariable(VarName, val, Control::ValueRange(min, max));
+	
+	Control::varname_t varname = Control::varname_t(VarName);
+	ctrl->BindDictVariable(varname, val, Control::ValueRange(min, max));
 
 	Py_RETURN_NONE;
 }
@@ -2862,7 +2866,7 @@ static PyObject* GemRB_AddNewArea(PyObject * /*self*/, PyObject* args)
 		int thisarea = wmap->GetEntryCount();
 		wmap->AddAreaEntry(std::move(entry));
 		for (unsigned int j=0;j<total;j++) {
-			const char *larea = newlinks->QueryField(j,0).c_str();
+			const ResRef larea = newlinks->QueryField(j,0);
 			int lflags        = newlinks->QueryFieldSigned<int>(j,1);
 			const char *ename = newlinks->QueryField(j,2).c_str();
 			int distance      = newlinks->QueryFieldSigned<int>(j,3);
@@ -5717,7 +5721,7 @@ static PyObject* GemRB_SetPlayerSound(PyObject * /*self*/, PyObject* args)
 	GET_GAME();
 	GET_ACTOR_GLOBAL();
 
-	actor->SetSoundFolder(Sound);
+	actor->SetSoundFolder(ieVariable(Sound));
 	Py_RETURN_NONE;
 }
 
@@ -6648,11 +6652,11 @@ PyDoc_STRVAR( GemRB_Button_SetItemIcon__doc,
 **See also:** [Button_SetSpellIcon](Button_SetSpellIcon.md), [Button_SetActionIcon](Button_SetActionIcon.md)"
 );
 
-static PyObject *SetItemIcon(Button* btn, const char* ItemResRef, int Which, int tooltip, int Function, const char* Item2ResRef, const ResRef& bam3ResRef)
+static PyObject *SetItemIcon(Button* btn, const ResRef& ItemResRef, int Which, int tooltip, int Function, const ResRef& Item2ResRef, const ResRef& bam3ResRef)
 {
 	ABORT_IF_NULL(btn);
 
-	if (!ItemResRef[0]) {
+	if (ItemResRef.IsEmpty()) {
 		btn->SetPicture(nullptr);
 		//no incref here!
 		return Py_None;
@@ -7841,7 +7845,7 @@ static void ReadUsedItems()
 		TableMgr::index_t UsedItemsCount = table->GetRowCount();
 		UsedItems.resize(UsedItemsCount);
 		for (TableMgr::index_t i = 0; i < UsedItemsCount; i++) {
-			UsedItems[i].itemname = table->GetRowName(i).c_str();
+			UsedItems[i].itemname = table->GetRowName(i);
 			UsedItems[i].username = ieVariable::MakeLowerCase(table->QueryField(i, 0).c_str());
 			if (UsedItems[i].username[0] == '*') {
 				UsedItems[i].username.Reset();
@@ -7865,7 +7869,7 @@ static void ReadSpecialItems()
 		TableMgr::index_t SpecialItemsCount = tab->GetRowCount();
 		SpecialItems.resize(SpecialItemsCount);
 		for (TableMgr::index_t i = 0; i < SpecialItemsCount; i++) {
-			SpecialItems[i].resref = tab->GetRowName(i).c_str();
+			SpecialItems[i].resref = tab->GetRowName(i);
 			//if there are more flags, compose this value into a bitfield
 			SpecialItems[i].value = tab->QueryFieldAsStrRef(i, 0);
 		}
@@ -7880,7 +7884,7 @@ static ieStrRef GetSpellDesc(const ResRef& CureResRef)
 			TableMgr::index_t StoreSpellsCount = tab->GetRowCount();
 			StoreSpells.resize(StoreSpellsCount);
 			for (TableMgr::index_t i = 0; i < StoreSpellsCount; i++) {
-				StoreSpells[i].resref = tab->GetRowName(i).c_str();
+				StoreSpells[i].resref = tab->GetRowName(i);
 				StoreSpells[i].value = tab->QueryFieldAsStrRef(i, 0);
 			}
 		}
@@ -9902,7 +9906,7 @@ static PyObject* GemRB_SetMapDoor(PyObject * /*self*/, PyObject* args)
 
 	GET_MAP();
 
-	Door *door = map->TMap->GetDoor(DoorName);
+	Door *door = map->TMap->GetDoor(ieVariable(DoorName));
 	if (!door) {
 		return RuntimeError( "No such door!" );
 	}
@@ -9938,7 +9942,7 @@ static PyObject* GemRB_SetMapExit(PyObject * /*self*/, PyObject* args)
 
 	GET_MAP();
 
-	InfoPoint *ip = map->TMap->GetInfoPoint(ExitName);
+	InfoPoint *ip = map->TMap->GetInfoPoint(ieVariable(ExitName));
 	if (!ip || ip->Type!=ST_TRAVEL) {
 		return RuntimeError( "No such exit!" );
 	}
@@ -9984,7 +9988,7 @@ static PyObject* GemRB_SetMapRegion(PyObject * /*self*/, PyObject* args)
 	GET_GAME();
 	GET_MAP();
 
-	InfoPoint *ip = map->TMap->GetInfoPoint(Name);
+	InfoPoint *ip = map->TMap->GetInfoPoint(ieVariable(Name));
 	if (ip) {
 		if (TrapScript) {
 			ip->Flags&=~TRAP_DEACTIVATED;
@@ -10513,7 +10517,7 @@ static void ReadActionButtons()
 		row.bytes[3] = tab->QueryFieldUnsigned<ieByte>(i,3);
 		GUIAction[i] = row.data;
 		GUITooltip[i] = tab->QueryFieldAsStrRef(i,4);
-		GUIResRef[i] = tab->QueryField(i, 5).c_str();
+		GUIResRef[i] = tab->QueryField(i, 5);
 		strncpy(GUIEvent[i], tab->GetRowName(i).c_str(), 16);
 	}
 }
@@ -11022,7 +11026,7 @@ static PyObject* GemRB_Window_SetupControls(PyObject* self, PyObject* args)
 				const CREItem *item = actor->inventory.GetSlotItem(slot);
 				//no slot translation required
 				int launcherslot = actor->inventory.FindSlotRangedWeapon(slot);
-				const char* Item2ResRef = 0;
+				ResRef Item2ResRef;
 				if (launcherslot != actor->inventory.GetFistSlot()) {
 					// launcher/projectile in this slot
 					const CREItem* item2;
@@ -11090,7 +11094,7 @@ jump_label2:
 			ResRef poi = actor->PCStats->QuickSpells[tmp];
 			if (!poi.IsEmpty()) {
 				SetSpellIcon(btn, poi, 1, 1, i+1);
-				int mem = actor->spellbook.GetMemorizedSpellsCount(*poi, -1, true);
+				int mem = actor->spellbook.GetMemorizedSpellsCount(poi, -1, true);
 				if (!mem) {
 					state = Button::FAKEDISABLED;
 				}
@@ -11136,7 +11140,7 @@ jump_label:
 					//if (usages)
 					{
 						//SetItemIcon parameter needs header+6 to display extended header icons
-						SetItemIcon(btn, item->ItemResRef, header + 6, (item->Flags & IE_INV_ITEM_IDENTIFIED) ? 2 : 1, i + 1, nullptr, {});
+						SetItemIcon(btn, item->ItemResRef, header + 6, (item->Flags & IE_INV_ITEM_IDENTIFIED) ? 2 : 1, i + 1, {}, {});
 						SetItemText(btn, usages, false);
 					}
 				} else {
@@ -11918,9 +11922,9 @@ static PyObject* GemRB_RunRestScripts(PyObject * /*self*/, PyObject* /*args*/)
 		if (pdtable->GetRowIndex(scriptname) != TableMgr::npos) {
 			ResRef resRef;
 			if (bg2expansion) {
-				resRef = pdtable->QueryField(scriptname, "25DREAM_SCRIPT_FILE").c_str();
+				resRef = pdtable->QueryField(scriptname, "25DREAM_SCRIPT_FILE");
 			} else {
-				resRef = pdtable->QueryField(scriptname, "DREAM_SCRIPT_FILE").c_str();
+				resRef = pdtable->QueryField(scriptname, "DREAM_SCRIPT_FILE");
 			}
 			GameScript* restscript = new GameScript(resRef, tar, 0, false);
 			if (restscript->Update()) {
