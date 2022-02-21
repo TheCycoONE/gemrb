@@ -3633,7 +3633,7 @@ bool Interface::ResolveRandomItem(CREItem *itm) const
 			diceThrows = 1;
 		}
 		if (*endptr) {
-			itm->ItemResRef = ResRef::MakeLowerCase(NewItem);
+			itm->ItemResRef = NewItem;
 		} else {
 			itm->ItemResRef = GoldResRef;
 		}
