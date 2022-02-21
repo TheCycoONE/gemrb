@@ -32,6 +32,7 @@
 		71F30A6F1D5991BA00AAC33E /* PythonConversions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71F30A6D1D5991BA00AAC33E /* PythonConversions.cpp */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		A200958527EADAC900E7FDD9 /* Format.h in Headers */ = {isa = PBXBuildFile; fileRef = A200958427EADAC900E7FDD9 /* Format.h */; };
 		A2042A7919DB4A6800011F05 /* TTFImporter.so in Copy Plugins */ = {isa = PBXBuildFile; fileRef = A29504771609721300BB22AA /* TTFImporter.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A20574FB19994979007FF22C /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A20574F919994967007FF22C /* SDL2.framework */; };
 		A20A278B1A71E3200077077C /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A20A27891A71E3200077077C /* View.cpp */; };
@@ -1212,6 +1213,7 @@
 		71F30A6E1D5991BA00AAC33E /* PythonConversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PythonConversions.h; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = osx/Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* GemRB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GemRB.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A200958427EADAC900E7FDD9 /* Format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Format.h; sourceTree = "<group>"; };
 		A20574F719994857007FF22C /* libGLEW.1.10.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.10.0.dylib; path = /opt/local/lib/libGLEW.1.10.0.dylib; sourceTree = "<absolute>"; };
 		A20574F919994967007FF22C /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
 		A20A27891A71E3200077077C /* View.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = View.cpp; sourceTree = "<group>"; };
@@ -5019,12 +5021,13 @@
 		A2A05CDF27A47E29000FB625 /* Strings */ = {
 			isa = PBXGroup;
 			children = (
-				A2A05CE027A47E29000FB625 /* StringConversion.cpp */,
 				A2A05CE127A47E29000FB625 /* CString.cpp */,
-				A2A05CE227A47E29000FB625 /* StringConversion.h */,
-				A2A05CE327A47E29000FB625 /* String.cpp */,
 				A2A05CE427A47E29000FB625 /* CString.h */,
+				A200958427EADAC900E7FDD9 /* Format.h */,
+				A2A05CE327A47E29000FB625 /* String.cpp */,
 				A2A05CE527A47E29000FB625 /* String.h */,
+				A2A05CE027A47E29000FB625 /* StringConversion.cpp */,
+				A2A05CE227A47E29000FB625 /* StringConversion.h */,
 			);
 			path = Strings;
 			sourceTree = "<group>";
@@ -8006,6 +8009,7 @@
 				A2E66420139E886100310FC8 /* Label.h in Headers */,
 				A2E66422139E886100310FC8 /* MapControl.h in Headers */,
 				A2E66424139E886100310FC8 /* Progressbar.h in Headers */,
+				A200958527EADAC900E7FDD9 /* Format.h in Headers */,
 				A2E66426139E886100310FC8 /* ScrollBar.h in Headers */,
 				A2E66428139E886100310FC8 /* Slider.h in Headers */,
 				A2E6642A139E886100310FC8 /* TextArea.h in Headers */,
