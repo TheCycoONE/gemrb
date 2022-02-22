@@ -3999,11 +3999,11 @@ PyDoc_STRVAR( GemRB_LoadMusicPL__doc,
 
 static PyObject* GemRB_LoadMusicPL(PyObject * /*self*/, PyObject* args)
 {
-	char *ResRef;
+	PyObject* pl;
 	int HardEnd = 0;
-	PARSE_ARGS( args,  "s|i", &ResRef, &HardEnd );
+	PARSE_ARGS(args,  "O|i", &pl, &HardEnd);
 
-	core->GetMusicMgr()->SwitchPlayList( ResRef, (bool) HardEnd );
+	core->GetMusicMgr()->SwitchPlayList(ResRefFromPy(pl), (bool) HardEnd );
 
 	Py_RETURN_NONE;
 }
