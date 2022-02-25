@@ -687,7 +687,7 @@ static PyObject* GemRB_Table_GetValue(PyObject* self, PyObject* args)
 	if (PyObject_TypeCheck(row, &PyUnicode_Type)) {
 		const auto rows = PyString_AsString(row);
 		const auto cols = PyString_AsString(col);
-		ret = tm->QueryField( rows, cols ).c_str();
+		ret = tm->QueryField(StringView(static_cast<const char*>(rows)), StringView(static_cast<const char*>(cols))).c_str();
 	} else {
 		size_t rowi = PyLong_AsLong(row);
 		size_t coli = PyLong_AsLong(col);
@@ -757,9 +757,9 @@ static PyObject* GemRB_Table_FindValue(PyObject* self, PyObject* args)
 	ABORT_IF_NULL(tm);
 
 	if (col == -1) {
-		return PyLong_FromLong(tm->FindTableValue(colname, Value, start));
+		return PyLong_FromLong(tm->FindTableValue(StringView(colname), Value, start));
 	} else if (col == -2) {
-		return PyLong_FromLong(tm->FindTableValue(colname, strvalue, start));
+		return PyLong_FromLong(tm->FindTableValue(StringView(colname), StringView(strvalue), start));
 	} else {
 		return PyLong_FromLong(tm->FindTableValue(col, Value, start));
 	}
@@ -791,7 +791,7 @@ static PyObject* GemRB_Table_GetRowIndex(PyObject* self, PyObject* args)
 	AutoTable tm = CObject<TableMgr, std::shared_ptr>(self);
 	ABORT_IF_NULL(tm);
 
-	TableMgr::index_t row = tm->GetRowIndex(rowname);
+	TableMgr::index_t row = tm->GetRowIndex(StringView(rowname));
 	//no error if the row doesn't exist
 	return PyLong_FromLong(row);
 }
@@ -854,7 +854,7 @@ static PyObject* GemRB_Table_GetColumnIndex(PyObject* self, PyObject* args)
 	AutoTable tm = CObject<TableMgr, std::shared_ptr>(self);
 	ABORT_IF_NULL(tm);
 
-	TableMgr::index_t col = tm->GetColumnIndex( colname );
+	TableMgr::index_t col = tm->GetColumnIndex(StringView(colname));
 	//no error if the column doesn't exist
 	return PyLong_FromLong(col);
 }
@@ -11916,7 +11916,7 @@ static PyObject* GemRB_RunRestScripts(PyObject * /*self*/, PyObject* /*args*/)
 	bool bg2expansion = core->GetGame()->Expansion == GAME_TOB;
 	while (ii--) {
 		Actor *tar = game->GetPC(ii, true);
-		const char* scriptname = tar->GetScriptName();
+		const ieVariable& scriptname = tar->GetScriptName();
 		if (pdtable->GetRowIndex(scriptname) != TableMgr::npos) {
 			ResRef resRef;
 			if (bg2expansion) {

@@ -1210,7 +1210,7 @@ void BeginDialog(Scriptable* Sender, const Action* parameters, int Flags)
 				Sender->ReleaseCurrentAction();
 				return;
 			}
-			const char* scriptingname = scr->GetScriptName();
+			const ieVariable& scriptingname = scr->GetScriptName();
 
 			/* banter dialogue */
 			pdtable = gamedata->LoadTable("interdia");

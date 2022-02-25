@@ -27,6 +27,14 @@ using namespace GemRB;
 
 #define SIGNLENGTH 256      //if a 2da has longer default value, change this
 
+static bool StringCompKey(const std::string& str, StringView key)
+{
+	return std::lexicographical_compare(str.begin(), str.end(), key.begin(), key.end(),
+	[](char c1, char c2){
+		return std::tolower(c1) < std::tolower(c2);
+	}) == false;
+}
+
 p2DAImporter::p2DAImporter() noexcept
 {
 	colNames.reserve(10);
@@ -141,20 +149,20 @@ const std::string& p2DAImporter::QueryDefault() const
 	return defVal;
 }
 
-p2DAImporter::index_t p2DAImporter::GetRowIndex(const char* string) const
+p2DAImporter::index_t p2DAImporter::GetRowIndex(QueryKey key) const
 {
 	for (index_t index = 0; index < rowNames.size(); index++) {
-		if (stricmp(rowNames[index].c_str(), string) == 0) {
+		if (StringCompKey(rowNames[index], key) == 0) {
 			return index;
 		}
 	}
 	return npos;
 }
 
-p2DAImporter::index_t p2DAImporter::GetColumnIndex(const char* string) const
+p2DAImporter::index_t p2DAImporter::GetColumnIndex(QueryKey key) const
 {
 	for (index_t index = 0; index < colNames.size(); index++) {
-		if (stricmp(colNames[index].c_str(), string) == 0) {
+		if (StringCompKey(colNames[index], key) == 0) {
 			return index;
 		}
 	}
@@ -190,24 +198,24 @@ p2DAImporter::index_t p2DAImporter::FindTableValue(index_t col, long val, index_
 	return npos;
 }
 
-p2DAImporter::index_t p2DAImporter::FindTableValue(index_t col, const char* val, index_t start) const
+p2DAImporter::index_t p2DAImporter::FindTableValue(index_t col, QueryKey val, index_t start) const
 {
 	index_t max = GetRowCount();
 	for (index_t row = start; row < max; row++) {
 		const std::string& ret = QueryField( row, col );
-		if (stricmp(ret.c_str(), val) == 0)
+		if (StringCompKey(ret, val) == 0)
 			return row;
 	}
 	return npos;
 }
 
-p2DAImporter::index_t p2DAImporter::FindTableValue(const char* col, long val, index_t start) const
+p2DAImporter::index_t p2DAImporter::FindTableValue(QueryKey col, long val, index_t start) const
 {
 	index_t coli = GetColumnIndex(col);
 	return FindTableValue(coli, val, start);
 }
 
-p2DAImporter::index_t p2DAImporter::FindTableValue(const char* col, const char* val, index_t start) const
+p2DAImporter::index_t p2DAImporter::FindTableValue(QueryKey col, QueryKey val, index_t start) const
 {
 	index_t coli = GetColumnIndex(col);
 	return FindTableValue(coli, val, start);
