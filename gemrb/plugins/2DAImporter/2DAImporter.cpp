@@ -27,7 +27,7 @@ using namespace GemRB;
 
 #define SIGNLENGTH 256      //if a 2da has longer default value, change this
 
-static bool StringCompKey(const std::string& str, StringView key)
+static bool StringCompKey(const std::string& str, TableMgr::key_t key)
 {
 	return std::lexicographical_compare(str.begin(), str.end(), key.begin(), key.end(),
 	[](char c1, char c2){
@@ -149,7 +149,7 @@ const std::string& p2DAImporter::QueryDefault() const
 	return defVal;
 }
 
-p2DAImporter::index_t p2DAImporter::GetRowIndex(QueryKey key) const
+p2DAImporter::index_t p2DAImporter::GetRowIndex(const key_t& key) const
 {
 	for (index_t index = 0; index < rowNames.size(); index++) {
 		if (StringCompKey(rowNames[index], key) == 0) {
@@ -159,7 +159,7 @@ p2DAImporter::index_t p2DAImporter::GetRowIndex(QueryKey key) const
 	return npos;
 }
 
-p2DAImporter::index_t p2DAImporter::GetColumnIndex(QueryKey key) const
+p2DAImporter::index_t p2DAImporter::GetColumnIndex(const key_t& key) const
 {
 	for (index_t index = 0; index < colNames.size(); index++) {
 		if (StringCompKey(colNames[index], key) == 0) {
@@ -198,7 +198,7 @@ p2DAImporter::index_t p2DAImporter::FindTableValue(index_t col, long val, index_
 	return npos;
 }
 
-p2DAImporter::index_t p2DAImporter::FindTableValue(index_t col, QueryKey val, index_t start) const
+p2DAImporter::index_t p2DAImporter::FindTableValue(index_t col, const key_t& val, index_t start) const
 {
 	index_t max = GetRowCount();
 	for (index_t row = start; row < max; row++) {
@@ -209,13 +209,13 @@ p2DAImporter::index_t p2DAImporter::FindTableValue(index_t col, QueryKey val, in
 	return npos;
 }
 
-p2DAImporter::index_t p2DAImporter::FindTableValue(QueryKey col, long val, index_t start) const
+p2DAImporter::index_t p2DAImporter::FindTableValue(const key_t& col, long val, index_t start) const
 {
 	index_t coli = GetColumnIndex(col);
 	return FindTableValue(coli, val, start);
 }
 
-p2DAImporter::index_t p2DAImporter::FindTableValue(QueryKey col, QueryKey val, index_t start) const
+p2DAImporter::index_t p2DAImporter::FindTableValue(const key_t& col, const key_t& val, index_t start) const
 {
 	index_t coli = GetColumnIndex(col);
 	return FindTableValue(coli, val, start);
